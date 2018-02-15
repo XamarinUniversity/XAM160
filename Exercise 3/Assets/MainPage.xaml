@@ -17,14 +17,14 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Entry x:Name="newPerson" 
+        <Entry x:Name="newPerson"
            Placeholder="Enter name" />
 
-        <Button Text="Add Person" 
-            Grid.Row="1"   
+        <Button Text="Add Person"
+            Grid.Row="1"
             Clicked="OnNewButtonClicked" />
 
-        <Label x:Name="statusMessage"   
+        <Label x:Name="statusMessage"
            Grid.Row="2" />
 
         <Button Text="Get All People"
@@ -37,8 +37,7 @@
                 <DataTemplate>
                     <ViewCell Height="30">
                         <StackLayout Padding="5">
-                            <Label 
-                Text="{Binding Name}" />
+                            <Label Text="{Binding Name}" />
                         </StackLayout>
                     </ViewCell>
                 </DataTemplate>
