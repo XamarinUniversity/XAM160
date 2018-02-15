@@ -34,7 +34,6 @@ namespace People
             {
                 StatusMessage = string.Format("Failed to add {0}. Error: {1}", name, ex.Message);
             }
-
         }
 
         public List<Person> GetAllPeople()
