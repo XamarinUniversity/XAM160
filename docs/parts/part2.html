@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+    <title>Exercise 2: Add SQLite.Net</title>
+    <link rel="stylesheet" type="text/css" href="./res/styles/normalize.css">
+    <link rel="stylesheet" type="text/css" href="./res/styles/prettify.css" />
+    <link rel="stylesheet" type="text/css" href="./res/styles/styles.css">
+</head>
+
+<body>
+    <!-- Use the same title as the StartHere -->
+    <header>XAM160 SQLite and Mobile Data</header>
+
+    <section id="main">
+        <h2>Exercise 2: Add SQLite.Net</h2>
+<p>In this exercise, you will add the SQLite.NET component to each project in your solution using NuGet.</p>
+<p>We are going to continue with the <strong>People</strong> project you built in the prior exercise. </p>
+<p>This exercise is a continuation of the previous exercise. You can use your existing solution or begin from the prior <strong>Exercise 1 &gt; Completed</strong> solution in your copy of the cloned or downloaded <a href="https://github.com/XamarinUniversity/XAM160/">course materials</a>.</p>
+<blockquote class="info-quote">To complete the exercise, you will need <a href="https://www.visualstudio.com/" target="_blank">Visual Studio for Windows or macOS</a> with the <a href="https://visualstudio.microsoft.com/xamarin/" target="_blank">Xamarin development tools</a> installed. You will also need either an emulator/simulator or a device to run the exercise on. Please see the <a href="https://docs.microsoft.com/xamarin/cross-platform/get-started/installation/" target="_blank">setup page</a> if you need help installing the Xamarin development environment.
+</blockquote>
+
+<hr>
+<h2>Add SQLite.NET</h2>
+<p>As a first step, we'll add the <strong>SQLite.NET</strong> NuGet package to each project in the solution. It includes platform-specific code in some cases so it must be included in every platform-specific project.</p>
+<!--wmm:ignore-->
+<ide name="vs">
+<ol>
+<li>Right-click on the 'People' solution root node in the solution explorer and select <strong>Manage NuGet Packages for Solution...</strong>.</li>
+<li>Select the <strong>Browse</strong> tab and enter <strong>sqlite-net-pcl</strong> in the Search field.</li>
+<li>Select <strong>sqlite-net-pcl</strong> by Frank A. Krueger in the list of search results and press the <strong>Install</strong> button. Make sure you get the right package as there are several to choose from.</li>
+<li>Make sure all your projects are selected on the right and click the <strong>Install</strong> button to add the NuGet package to each one.</li>
+</ol>
+<p class="spacing-top">
+<button class="spacing-both btn btn-toggle btn-purple" type="button" data-toggle="collapse" data-toggle-show-text="Add via Package Manager Console" data-toggle-hide-text="Hide" aria-expanded="false" data-target="#Ta700440826534588847a0088553745c0">Add via Package Manager Console</button>
+<div class="collapse" id="Ta700440826534588847a0088553745c0">
+<div class="card card-block">
+<p>
+<p>To add this NuGet package via the Package Manager Console, found in the menu under <strong>Tools &gt; NuGet Package Manager &gt; Package Manager Console</strong>, run the following command:</p>
+<pre class="prettyprint"><code>Install-Package sqlite-net-pcl
+</code></pre>
+
+</p>
+</div>
+</div>
+</p>
+<figure class="figure">
+<img src="./images/VS17-manage-nuget.png" alt="Adding the sqlite-net-pcl NuGet package to all solution projects in Visual Studio." title="Install the sqlite-net-pcl package for all projects" />
+<figcaption class="figure-caption">Install the sqlite-net-pcl package for all projects</figcaption>
+</figure>
+</ide>
+<ide name="xs">
+<ol>
+<li>Expand all the projects in the Solution Explorer. Each project has a <strong>Packages</strong> folder where we will add the NuGet package.</li>
+<li>Right-click on the <strong>Packages</strong> folder in the <strong>People</strong> Portable Class Library project and select <strong>Add Packages...</strong> from the popup menu.</li>
+<li>In the Search field, enter <strong>sqlite-net pcl</strong>.</li>
+<li>Select <strong>sqlite-net-pcl</strong> by Frank A. Krueger in the list of search results, make sure it's checked and press the <strong>Add Package</strong> button in the lower right. Make sure you get the right package as there are several to choose from.</li>
+<li>Repeat the steps above for all other projects in the solution. VS for Mac makes this a little easier by always placing previously added packages first in the dialog when you open it again.</li>
+</ol>
+<figure class="figure">
+<img src="./images/VSMac-manage-nuget.png" alt="Adding the sqlite-net-pcl NuGet package to a project in Visual Studio." title="Install the sqlite-net-pcl package for each project" />
+<figcaption class="figure-caption">Install the sqlite-net-pcl package for each project</figcaption>
+</figure>
+</ide>
+<!--/wmm:ignore-->
+
+<hr>
+<h2>Exercise summary</h2>
+<p>In this exercise, we added SQLite.NET to each project through NuGet. We're now ready to work with a SQLite database.</p>
+<p>You can view the completed solution in the <strong>Exercise 2 &gt; Completed</strong> folder of your copy of the cloned or downloaded <a href="https://github.com/XamarinUniversity/XAM160/">course materials</a>.</p>
+
+
+        <div class="align-right">
+            <a href="../StartHere.html">Go Back</a>
+        </div>
+
+    </section>
+
+    <script src="./res/js/jquery.min.js"></script>
+    <script src="./res/js/jquery.imagemapster.min.js"></script>
+    <script src="./res/js/imagemap.js"></script>
+    <script src="./res/js/prettify.js"></script>
+    <script src="./res/js/script.js"></script>
+
+    <footer>Copyright (C) 2018 Xamarin Inc., Microsoft. All rights reserved.<br><a target="_blank" href="http://university.xamarin.com">Visit Xamarin University for more classes and content</a></footer>
+
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+    <title>Exercise 4: Access a SQLite database using asynchronous methods</title>
+    <link rel="stylesheet" type="text/css" href="./res/styles/normalize.css">
+    <link rel="stylesheet" type="text/css" href="./res/styles/prettify.css" />
+    <link rel="stylesheet" type="text/css" href="./res/styles/styles.css">
+</head>
+
+<body>
+    <!-- Use the same title as the StartHere -->
+    <header>XAM160 SQLite and Mobile Data</header>
+
+    <section id="main">
+        <h2>Exercise 4: Access a SQLite database using asynchronous methods</h2>
+<p>In this exercise, you will update an existing project and modify the synchronous database calls to use their asynchronous counterparts from the SQLite.NET library.</p>
+<blockquote class="info-quote">To complete the exercise, you will need <a href="https://www.visualstudio.com/" target="_blank">Visual Studio for Windows or macOS</a> with the <a href="https://visualstudio.microsoft.com/xamarin/" target="_blank">Xamarin development tools</a> installed. You will also need either an emulator/simulator or a device to run the exercise on. Please see the <a href="https://docs.microsoft.com/xamarin/cross-platform/get-started/installation/" target="_blank">setup page</a> if you need help installing the Xamarin development environment.
+</blockquote>
+
+<hr>
+<h2>Open the starter solution</h2>
+<p>This exercise is a continuation of the previous exercise. You can use your existing solution or begin from the prior <strong>Exercise 3 &gt; Completed</strong> solution in your copy of the cloned or downloaded <a href="https://github.com/XamarinUniversity/XAM160/">course materials</a>.</p>
+
+<hr>
+<h2>Create an Async connection</h2>
+<ol>
+<li>Open the <strong>PersonRepository.cs</strong> file in the <strong>People</strong> PCL project.</li>
+<li>Change the <code>SQLiteConnection</code> <strong>conn</strong> property to a <code>SQLiteAsyncConnection</code>. This requires updating the property and the instantiation.</li>
+<li>In the constructor, notice the call to <code>CreateTable</code> is no longer valid. Replace this call with <code>CreateTableAsync</code>.</li>
+<li><code>CreateTableAsync</code> is a <code>Task</code>-returning async method. Use the <code>Wait()</code> method on the returned <code>Task</code> to make this a blocking call to ensure the table is created before the constructor completes. Note that we are using this blocking call to keep the exercise as simple as possible. In general you should not mix asynchronous and synchronous code as there are scenarios where it can cause an application to deadlock.</li>
+</ol>
+<pre class="prettyprint-collapse"><code>private <mark>SQLiteAsyncConnection</mark> conn;
+
+public PersonRepository (string dbPath)
+{
+    conn = new <mark>SQLiteAsyncConnection</mark>(dbPath);
+    conn.<mark>CreateTableAsync&lt;Person&gt;().Wait()</mark>;
+}
+</code></pre>
+
+
+<hr>
+<h2>Use async database calls</h2>
+<ol>
+<li>
+Modify the <code>AddNewPerson</code> method to insert a new <code>Person</code> using an asynchronous call:
+<ul>
+<li>Refactor the method to use <code>async</code>/<code>await</code>.</li>
+<li>Change the return type to be a <code>Task</code> so we can see exceptions that might happen in the method from the caller.</li>
+<li>You will need a new namespace: <code>System.Threading.Tasks</code> to return a <code>Task</code> type.</li>
+<li>Rename the method to append the term <strong>Async</strong> to the end of the method name.</li>
+</ul>
+</li>
+</ol>
+<pre class="prettyprint-collapse"><code><mark>using System.Threading.Tasks;</mark>
+...
+public <mark>async Task</mark> AddNewPerson<mark>Async</mark>(string name)
+{
+    int result = 0;
+    try
+    {
+        //basic validation to ensure a name was entered
+        if (string.IsNullOrEmpty(name))
+            throw new Exception(&quot;Valid name required&quot;);
+
+        // TODO: insert a new person into the Person table
+        result = <mark>await</mark> conn.<mark>InsertAsync</mark>(new Person { Name = name });
+
+        StatusMessage = string.Format(&quot;{0} record(s) added [Name: {1})&quot;, result, name);
+    }
+    catch (Exception ex)
+    {
+        StatusMessage = string.Format(&quot;Failed to add {0}. Error: {1}&quot;, name, ex.Message);
+    }
+}
+</code></pre>
+
+<ol start="2">
+<li>
+Modify the <code>GetAllPeople</code> method to return the results using an asynchronous call.
+<ul>
+<li>Refactor the method to use <code>async</code>/<code>await</code> and <code>ToListAsync</code> to perform the <code>SELECT</code> query.</li>
+<li>Rename the method to append the term <strong>Async</strong> to the end of the method name.</li>
+<li>The returning result from the method will need to be modified to return a <code>Task&lt;List&lt;Person&gt;&gt;</code>.</li>
+</ul>
+</li>
+</ol>
+<pre class="prettyprint-collapse"><code>public <mark>async</mark> <mark>Task&lt;List&lt;Person&gt;&gt;</mark> GetAllPeople<mark>Async</mark>()
+{
+    try
+    {
+        <mark>return await conn.Table&lt;Person&gt;().ToListAsync();</mark>
+    }
+    catch (Exception ex)
+    {
+        StatusMessage = string.Format(&quot;Failed to retrieve data. {0}&quot;, ex.Message);
+    }
+
+    return new List&lt;Person&gt;();
+}
+</code></pre>
+
+<ol start="3">
+<li>In the <strong>MainPage.xaml.cs</strong> file, modify both of the <code>Button.Click</code> event handlers to use the async methods from the <code>PersonRepository</code> class, making use of the <code>async</code> and <code>await</code> keywords.</li>
+</ol>
+<pre class="prettyprint-collapse"><code>public <mark>async</mark> void OnNewButtonClicked(object sender, EventArgs args)
+{
+    statusMessage.Text = string.Empty;
+    <mark>await App.PersonRepo.AddNewPersonAsync(newPerson.Text);</mark>
+    statusMessage.Text = PersonRepository.Instance.StatusMessage;
+}
+
+public <mark>async</mark> void OnGetButtonClicked(object sender, EventArgs args)
+{
+    statusMessage.Text = string.Empty;
+    <mark>var people = await App.PersonRepo.GetAllPeopleAsync();</mark>
+    peopleList.ItemsSource = people;
+}
+</code></pre>
+
+<ol start="4">
+<li>Build the solution and run the app to verify it still builds and functions correctly.</li>
+</ol>
+
+<hr>
+<h2>Exercise summary</h2>
+<p>In this exercise, we refactored our existing project to utilize the asynchronous versions of the SQLite.NET methods so that our UI thread is not tied up when I/O is being performed.</p>
+<p>If you have time, try adding some filters into the query, adding support to edit records and delete records through new buttons in the UI.</p>
+<p>You can view the completed solution in the <strong>Exercise 4 &gt; Completed</strong> folder of your copy of the cloned or downloaded <a href="https://github.com/XamarinUniversity/XAM160/">course materials</a>.</p>
+
+
+        <div class="align-right">
+            <a href="../StartHere.html">Go Back</a>
+        </div>
+
+    </section>
+
+    <script src="./res/js/jquery.min.js"></script>
+    <script src="./res/js/jquery.imagemapster.min.js"></script>
+    <script src="./res/js/imagemap.js"></script>
+    <script src="./res/js/prettify.js"></script>
+    <script src="./res/js/script.js"></script>
+
+    <footer>Copyright (C) 2018 Xamarin Inc., Microsoft. All rights reserved.<br><a target="_blank" href="http://university.xamarin.com">Visit Xamarin University for more classes and content</a></footer>
+
+</body>
+</html>

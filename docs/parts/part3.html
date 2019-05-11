@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=US-ASCII">
+    <title>Exercise 3: Access a SQLite database with SQLite.Net</title>
+    <link rel="stylesheet" type="text/css" href="./res/styles/normalize.css">
+    <link rel="stylesheet" type="text/css" href="./res/styles/prettify.css" />
+    <link rel="stylesheet" type="text/css" href="./res/styles/styles.css">
+</head>
+
+<body>
+    <!-- Use the same title as the StartHere -->
+    <header>XAM160 SQLite and Mobile Data</header>
+
+    <section id="main">
+        <h2>Exercise 3: Access a SQLite database with SQLite.Net</h2>
+<p>In this exercise, you will define the database schema for a SQLite database and then create and connect to the database.</p>
+<figure class="figure">
+<img src="./images/ex3-android-completed.png" alt="image" />
+</figure>
+<blockquote class="info-quote">To complete the exercise, you will need <a href="https://www.visualstudio.com/" target="_blank">Visual Studio for Windows or macOS</a> with the <a href="https://visualstudio.microsoft.com/xamarin/" target="_blank">Xamarin development tools</a> installed. You will also need either an emulator/simulator or a device to run the exercise on. Please see the <a href="https://docs.microsoft.com/xamarin/cross-platform/get-started/installation/" target="_blank">setup page</a> if you need help installing the Xamarin development environment.
+</blockquote>
+
+<hr>
+<h2>Open the starter solution</h2>
+<p>This exercise is a continuation of the previous exercise. You can use your existing solution or begin from the prior <strong>Exercise 2 &gt; Completed</strong> solution in your copy of the cloned or downloaded <a href="https://github.com/XamarinUniversity/XAM160/">course materials</a>.</p>
+<p>There are also assets you'll need from the <strong>Exercise 3 &gt; Assets</strong> folder.</p>
+
+<hr>
+<h2>Define a SQLite.NET entity</h2>
+<p>First we need to create a <strong>model class</strong> that we can use to map to a table in our database.</p>
+<ol>
+<li>Add a new folder in the <strong>People</strong> Portable Class Library named <strong>Models</strong>.</li>
+<li>In the <strong>Models</strong> folder, create a new class named <strong>Person</strong> and ensure that it is <code>public</code>.</li>
+<li>Verify that the <strong>Person</strong> class is in the <code>People.Models</code> namespace.</li>
+</ol>
+<pre class="prettyprint-collapse"><code>namespace People.Models
+{
+    public class Person
+    {
+    }
+}
+</code></pre>
+
+<ol start="4">
+<li>Add an <code>int</code> property named <strong>Id</strong>.</li>
+<li>Add a <code>string</code> property named <strong>Name</strong>.</li>
+</ol>
+<pre class="prettyprint-collapse"><code>public int Id { get; set; }
+public string Name { get; set; }
+</code></pre>
+
+
+<hr>
+<h2>Add SQLite annotations</h2>
+<p>We will add .NET attribute annotations to our <code>People</code> model object to help SQLite.NET map our class to a SQLite table.</p>
+<ol>
+<li>Add a using directive for the <code>SQLite</code> namespace. This will allow us to use the SQLite.NET attributes.</li>
+<li>Annotate the <strong>Person</strong> class with the <code>[Table]</code> attribute and specify the name as <code>&quot;people&quot;</code>.</li>
+<li>We will specify the property <strong>Id</strong> as our primary key. Annotate <strong>Id</strong> with the <code>[PrimaryKey]</code> attribute and specify it <code>[AutoIncrement]</code>. </li>
+<li>Add annotations to the <strong>Name</strong> property to add some constraints to the data. Specify its <code>[MaxLength]</code> to be <strong>250</strong> and specify that each value in the column should be <code>[Unique]</code>.</li>
+</ol>
+<pre class="prettyprint-collapse"><code>using SQLite;
+
+namespace People.Models
+{
+    [Table(&quot;people&quot;)]
+    public class Person
+    {
+        [PrimaryKey, AutoIncrement]
+        public int Id { get; set; }
+
+        [MaxLength(250), Unique]
+        public string Name { get; set; }
+    }
+}
+</code></pre>
+
+<ol start="5">
+<li>Build your application and ensure it compiles before moving to the next step.</li>
+</ol>
+
+<hr>
+<h2>Add the repository class</h2>
+<p>Next, we need to add some pre-built code to the cross-platform project. This code has been supplied in the <strong>Exercise 3 &gt; Assets</strong> folder of your copy of the cloned or downloaded <a href="https://github.com/XamarinUniversity/XAM160/">course materials</a>.</p>
+<ol>
+<li>Add the <strong>PersonRepository.cs</strong> C# source file from the Assets folder into the shared <strong>People</strong> project. An easy way to do that is to drag/drop it onto the project's root node in your solution explorer from the folder.</li>
+<li>Examine the repository class - it has some pre-supplied methods and a few <code>TODO</code> markers where we will add some functionality to access the database.</li>
+</ol>
+<table>
+<thead>
+<tr>
+	<th>Method or Property</th>
+	<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+	<td><code>StatusMessage</code></td>
+	<td>This property provides a <code>string</code> which reports the last success or fail message from the database.</td>
+</tr>
+<tr>
+	<td>constructor</td>
+	<td>The constructor initializes the underlying SQLite connection.</td>
+</tr>
+<tr>
+	<td><code>AddNewPerson</code></td>
+	<td>This method inserts a new <code>Person</code> record into the database.</td>
+</tr>
+<tr>
+	<td><code>GetAllPeople</code></td>
+	<td>This method returns all of the <code>Person</code> records from the database.</td>
+</tr>
+</tbody>
+</table>
+<p>Before the project will compile, we have to add some more functionality to our database repository class.</p>
+
+<hr>
+<h2>Connect to a database</h2>
+<p>Next, we need to add some code to work with a SQLite database on the device.</p>
+<ol>
+<li>Open the <strong>PersonRepository.cs</strong> source file.</li>
+<li>In the constructor, initialize a new <code>SQLiteConnection</code> and save it to a field named <strong>conn</strong>.</li>
+<li>Use the <code>conn.CreateTable</code> method to create a table to store <code>Person</code> data.</li>
+</ol>
+<pre class="prettyprint-collapse"><code>private SQLiteConnection conn;
+...
+public PersonRepository(string dbPath)
+{
+    conn = new SQLiteConnection(dbPath);
+    conn.CreateTable&lt;Person&gt;();
+}
+</code></pre>
+
+
+<hr>
+<h2>Read and write to the database</h2>
+<p>Next, let's implement the method to insert records into our SQLite database.</p>
+<ol>
+<li>In <strong>PersonRepository.cs</strong>, find the <code>AddNewPerson</code> method.</li>
+<li>
+Add code to insert a new <code>Person</code> object.
+<ul>
+<li>There is a <code>TODO</code> marker in the method to show you where this code should go.</li>
+<li>Using the DB connection field <code>conn</code>, call the <code>Insert</code> method and pass in a new <code>Person</code> object with its <code>Name</code> property set to the <code>name</code> parameter.</li>
+<li>Assign the return value to the <code>result</code> variable that's already defined in the method.</li>
+</ul>
+</li>
+</ol>
+<pre class="prettyprint-collapse"><code>public void AddNewPerson(string name)
+{
+    int result = 0;
+    try
+    {
+        //basic validation to ensure a name was entered
+        if (string.IsNullOrEmpty(name))
+            throw new Exception(&quot;Valid name required&quot;);
+
+        <mark>result = conn.Insert(new Person { Name = name });</mark>
+        ...
+    }
+    ...
+}
+</code></pre>
+
+
+<hr>
+<h2>Read from the database</h2>
+<p>Once we have records, we can read them by accessing the <code>Table</code> object we created in the constructor.</p>
+<ol>
+<li>In <strong>PersonRepository.cs</strong>, find the <code>GetAllPeople</code> method.</li>
+<li>Use the the <code>Table&lt;T&gt;</code> method to retrieve all of the records - this returns an <code>IEnumerable&lt;Person&gt;</code> object.</li>
+<li>You cannot return the enumerator directly because a <code>List&lt;Person&gt;</code> is expected. Use the <code>ToList()</code> extension method to turn it into a valid type.</li>
+<li>Optionally, you can include error handling by wrapping your code into a try-catch block. If there is an error, set the <code>StatusMessage</code> property to the exception's <code>Message</code> and return an empty <code>List&lt;Person&gt;()</code>.</li>
+</ol>
+<pre class="prettyprint-collapse"><code>public List&lt;Person&gt; GetAllPeople()
+{
+    try
+    {
+        <mark>return conn.Table&lt;Person&gt;().ToList();</mark>
+    }
+    catch (Exception ex)
+    {
+        StatusMessage = string.Format(&quot;Failed to retrieve data. {0}&quot;, ex.Message);
+    }
+
+    return new List&lt;Person&gt;();
+}
+</code></pre>
+
+
+<hr>
+<h2>Connect the UI</h2>
+<p>Our final step is to add UI to call the methods populated in the previous step. We'll use a pre-built UI included with the <strong>Exercise 3 &gt; Assets</strong> folder of your copy of the cloned or downloaded <a href="https://github.com/XamarinUniversity/XAM160/">course materials</a>..</p>
+<ol>
+<li>Replace the <strong>MainPage.xaml</strong> and <strong>MainPage.xaml.cs</strong> in the shared <strong>People</strong> project with the copies you have in the assets. You can copy the these directly into the folder structure and replace the existing files.</li>
+</ol>
+<p>Finally, let's initialize the repository with our filename.</p>
+<ol start="2">
+<li>Open the <strong>App.xaml.cs</strong> file in the PCL project and locate the constructor.</li>
+<li>Rename the passed parameter to <code>dbPath</code> if it's something different.</li>
+<li>Remove the <code>Text</code> property setter on the <code>MainPage</code> object&mdash;we no longer have that property since we just replaced the UI.</li>
+<li>Add a public, static property named <code>PersonRepo</code> to hold a <code>PersonRepository</code> object.</li>
+<li>Initialize the <code>PersonRepo</code> property in the constructor by creating an instance of <code>PersonRepository</code>, passing in the <code>dbPath</code> parameter to the repository constructor.</li>
+</ol>
+<pre class="prettyprint-collapse"><code>public class App : Application
+{
+    <mark>public static PersonRepository PersonRepo { get; private set; }</mark>
+
+    public App(string <mark>dbPath</mark>)
+    {
+        InitializeComponent();
+
+        <mark>PersonRepo = new PersonRepository(dbPath);</mark>
+
+        MainPage = new MainPage()<mark>;</mark>
+    }
+    ...
+}
+</code></pre>
+
+
+<hr>
+<h2>Run the application</h2>
+<p>Build the solution and run the application on at least one platform. Remember that for the Windows platforms, you will need to ensure you have selected a target CPU architecture.</p>
+<ul>
+<li>Tap the &quot;Get All People&quot; button to perform a <code>SELECT *</code> from the <code>People</code> table. Initially it will be empty.</li>
+<li>Enter a name into the <code>Entry</code> field and tap the <code>Add Person</code> button to add it to the database. You should see a status message appear.</li>
+<li>Tap the &quot;Get All People&quot; button each time to show the changes to the underlying table.</li>
+</ul>
+<p>Stop the application and run it again. You should see the data is persistent now that it's stored in a database file.</p>
+<p class="spacing-top">
+<button class="spacing-both btn btn-toggle btn-purple" type="button" data-toggle="collapse" data-toggle-show-text="I&#39;m seeing build errors from the new MainPage.xaml.cs" data-toggle-hide-text="Hide" aria-expanded="false" data-target="#T354c08280ae745678d3407934693a1f0">I'm seeing build errors from the new MainPage.xaml.cs</button>
+<div class="collapse" id="T354c08280ae745678d3407934693a1f0">
+<div class="card card-block">
+<p>
+Sometimes, Visual Studio doesn't realize it needs to rebuild a .NET Standard project when you change files outside of the editor, like you may have done when you copied over MainPage.xaml and MainPage.xaml.cs. You can resolve this by forcing Visual Studio to rebuild the shared project: right-click the project and select <strong>Rebuild</strong>.
+</p>
+</div>
+</div>
+</p>
+<figure class="figure">
+<img src="./images/ex3-ios-completed.png" alt="App running on iOS" />
+</figure>
+
+<hr>
+<h2>Exercise summary</h2>
+<p>In this exercise, we created and connected to a <strong>SQLite</strong> database, and performed basic CRUD (Create-Read-Update-Delete) operations.</p>
+<p>You can view the completed solution in the <strong>Exercise 3 &gt; Completed</strong> folder of your copy of the cloned or downloaded <a href="https://github.com/XamarinUniversity/XAM160/">course materials</a>.</p>
+
+
+        <div class="align-right">
+            <a href="../StartHere.html">Go Back</a>
+        </div>
+
+    </section>
+
+    <script src="./res/js/jquery.min.js"></script>
+    <script src="./res/js/jquery.imagemapster.min.js"></script>
+    <script src="./res/js/imagemap.js"></script>
+    <script src="./res/js/prettify.js"></script>
+    <script src="./res/js/script.js"></script>
+
+    <footer>Copyright (C) 2018 Xamarin Inc., Microsoft. All rights reserved.<br><a target="_blank" href="http://university.xamarin.com">Visit Xamarin University for more classes and content</a></footer>
+
+</body>
+</html>
